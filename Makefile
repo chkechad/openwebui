@@ -25,3 +25,16 @@ logs-db:
 rebuild:
 	$(COMPOSE) pull
 	$(COMPOSE) up -d --force-recreate
+
+## update-app: pull latest cuda image, recreate app, remove old image
+update-app:
+	@OLD_ID=$$($(COMPOSE) images -q app); \
+	$(COMPOSE) pull app; \
+	$(COMPOSE) up -d app; \
+	NEW_ID=$$($(COMPOSE) images -q app); \
+	if [ "$$OLD_ID" != "$$NEW_ID" ] && [ -n "$$OLD_ID" ]; then \
+		echo "Suppression de l'ancienne image $$OLD_ID"; \
+		docker image rm $$OLD_ID; \
+	else \
+		echo "Deja a jour, rien a supprimer"; \
+	fi
